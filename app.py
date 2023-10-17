@@ -33,25 +33,42 @@ def get_recipes():
 # The syntax means the value will be assigned to an integer variable.
 # The function will then loop through recipes to locate the recipe that has is.
 def get_recipe(recipe_id):
-    # recipe = next((recipe for recipe in recipes if recipe['id'] == recipe_id), None)
-    for recipe in recipes:
-        if recipes['id'] == recipe_id:
-            return jsonify(recipe)
-        else:
-            return jsonify({'message': 'recipe not found'}), HTTPStatus.NOT_FOUND
+    recipe = next((recipe for recipe in recipes if recipe['id'] == recipe_id), None)
+    if not recipe:
+        return jsonify({'message': 'recipe not found'}), HTTPStatus.NOT_FOUND
+    return jsonify(recipe)
 # Create recipe route
-@app.route('/recipes', methods = ['POST'])
+@app.route('/recipes', methods=['POST'])
 def create_recipe():
-    data = request.get_json() # This used to get the name and description
+    data = request.get_json()  # This used to get the name and description
     name = data.get('name')
     description = data.get('description')
     recipe = {
-        'id':len(recipes) + 1,
+        'id': len(recipes) + 1,
         'name': name,
         'description': description
 
     }
-    if recipes.apped(recipe):
+    if recipes.append(recipe):
         return jsonify(recipe), HTTPStatus.CREATED
     else:
         return jsonify({'message': 'Error when posting'})
+
+
+@app.route('/recipes/<int:recipe_id>', methods=['PUT'])
+def update_recipe(recipe_id):
+    recipe = next((recipe for recipe in recipes if recipe['id'] == recipe_id), None)
+    if not recipe:
+        return jsonify({'message': 'recipe not found'}), HTTPStatus.NOT_FOUND
+    data = request.get_json()
+    recipe.update(
+        {
+            'name': data.get('name'),
+            'description': data.get('description')
+        }
+    )
+    return jsonify(recipe)
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
